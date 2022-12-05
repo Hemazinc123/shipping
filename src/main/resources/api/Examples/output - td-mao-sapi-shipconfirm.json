@@ -1,0 +1,86 @@
+{
+  "ShipConfirmCanonical": {
+    "EnterpriseHeader": {
+      "MessageID": "===",
+      "MessageType": "MIF-ShipConfirm",
+      "BusinessitemID": "WJF|149359939",
+      "TimestampUTC": "2022-11-30T07:30:53.492712Z",
+      "SourceSystem": "Torrid_WJF",
+      "Itinerary": "Add",
+      "WarehouseNumber": "895"
+    },
+    "EnterpriseBody": {
+      "Message": {
+        "ASN": [
+          {
+            "ASNType": "20",
+            "ASNStatus": "20",
+            "BusinessUnit": "1",
+            "OriginFacilityAliasID": "895",
+            "DestinationFacilityAliasID": "5270",
+            "DeliveryStart": "11/16/22 00:00 ",
+            "ContactAddress1": "225 ALLWOOD RD SPACE6",
+            "ContactAddress2": null,
+            "ContactAddress3": "C/O TORRID",
+            "ContactCity": "CLIFTON",
+            "ContactStateOrProvince": "NJ",
+            "ContactPostalCode": "07012",
+            "ContactCountry": "US",
+            "ContactNumber": "9733885740",
+            "OriginType": "W",
+            "DestinationType": "C",
+            "TransferFlag": "N",
+            "IsCancelled": "0",
+            "TotalWeight": "1",
+            "TotalWeightUOM": "lb",
+            "Volume": "0",
+            "VolumeUOM": "Cu Inch",
+            "LPN": [
+              {
+                "LPNID": "1027071651",
+                "BusinessUnit": "1",
+                "LPNType": "LPN",
+                "LPNStatus": "In-Transit",
+                "LPNStatusDate": "11/16/22 00:00 ",
+                "LPNFacilityStatus": "In-Transit",
+                "OriginFacilityAliasID": "895",
+                "CurrentFacilityAliasID": "5270",
+                "FinalDestinationFacilityAliasID": "5270",
+                "ShipVia": "02",
+                "TrackingNbr": "1Z557YX20361297355",
+                "DistributionOrderID": "149359939",
+                "EstimatedWeight": "0",
+                "ActualWeight": "1",
+                "WeightUOM": "lb",
+                "ActualVolume": "0",
+                "VolumeUOM": "Cu Inch",
+                "LPNDetail": [
+                  {
+                    "ItemName": "11943768",
+                    "PurchaseOrderLineItemID": "1",
+                    "DistributionOrderLineItemID": "1",
+                    "LPNDetailQuantity": {
+                      "Quantity": "1",
+                      "QuantityUOM": "EA",
+                      "ShippedAsnQuantity": "1",
+                      "OriginalQuantity": "1"
+                    },
+                    "LPNDetailWeight": {
+                      "EstimatedWeight": null,
+                      "Weight": "1",
+                      "WeightUOM": "lb"
+                    },
+                    "LPNDetailVolume": {
+                      "EstimatedVolume": "0",
+                      "VolumeUOM": "Cu Inch"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

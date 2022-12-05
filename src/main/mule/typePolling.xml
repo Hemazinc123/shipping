@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:module-eventlogger="http://www.mulesoft.org/schema/mule/module-eventlogger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/module-eventlogger http://www.mulesoft.org/schema/mule/module-eventlogger/current/mule-module-eventlogger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="sf-typePolling" doc:id="0240adc9-7ca6-4250-9678-6a9ada32052f" >
+		<module-eventlogger:logger doc:name="START:Logger" doc:id="f82933d1-431c-4ea8-9c7a-1415dcf7bb99" config-ref="EventLogger_Config1" message="START: Logging Event at sf-typePolling" apiFlowName="sf-typePolling" sourceSystem="#[vars.vAttributes.sourceSystem]" severity="WARN" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.sourceSystem]" targetChannel="#[vars.vAttributes.sourceChannel]" transactionDomain="#[vars.vAttributes.domain]">
+			<module-eventlogger:event-data ><![CDATA[#[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+		<ee:transform doc:name="DW: XML to JSON" doc:id="a6335a56-d54b-4d06-9b0a-c9ac482ef8c8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Strings
+import * from dw::core::Arrays
+output application/json
+ns ns0 http://schemas.hottopic.com/eai2/2012/common
+ns ns1 http://schemas.hottopic.com/eai2/2012/allocation
+---
+AllocationCanonical:{
+       EnterpriseHeader:payload.AllocationCanonical.EnterpriseBody.*AllocationDetail map (item, index) -> {
+        MessageID: payload.ns1#AllocationCanonical.ns1#EnterpriseBody.MessageID,
+        MessageType:payload.ns1#AllocationCanonical.ns0#EnterpriseHeader.MessageType,
+        BusinessDataID:payload.ns1#AllocationCanonical.ns0#EnterpriseHeader.BusinessDataID,
+TimestampUTC: now(),
+SourceSystem:"N",
+Itinerary: item.@WAREHOUSE_NBR,
+WarehouseNumber:if(item.@PO_NBR =="0") item.@ALLOC_NBR else (item.@PO_NBR),
+},
+EnterpriseBody:{
+    AllocationDetail:payload.AllocationCanonical.EnterpriseBody.*AllocationDetail map (item, index) -> {
+        ALLOC_NBR:item.@SEQ_NBR,
+        WAREHOUSE_NBR:item.@ITEM_PARENT,
+        BATCH_NBR:item.@SKU_NBR,
+        WL_KEY:item.@ASN,
+        PO_NBR:item.@COST_PRICE,
+        PO_LN_SEQ_NUM :item.@RETAIL_PRICE,
+        SEQ_NBR:item.@RESULT_QTY,
+        ASN:item.@PO_NBR,
+        REC_NBR:(item.@REC_NBR) default 2  ,
+        COST_PRICE:item.@BATCH_NBR,
+        RETAIL_PRICE:item.@RETAIL_PRICE,
+        DIV_NBR:item.@DIV_NBR,
+        MERCH_TYPE_ID :item.@MERCH_TYPE_ID,
+        COMPANY_CD :item.@COMPANY_CD ,
+        SEQUENCE_NUM:item.@SEQUENCE_NUM,
+        LOCATION_ID:item.@LOCATION_ID,
+        PRIORITY_CODE:item.@PRIORITY_CODE,
+        RESULT_QTY:item.@RESULT_QTY,
+        SKU_NBR:item.@SKU_NBR,
+        DEPT_CD:item.@DEPT_CD,
+        ITEM_PARENT:item.@ITEM_PARENT,
+        ALLOC_NBR:item.@ALLOC_NBR,
+        
+    }
+
+}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="a8cd58eb-5bf8-43a1-82f4-e7536bb1d491" >
+			<when expression="#[payload.AllocationCanonical.EnterpriseHeader !=null]">
+				<flow-ref doc:name="sf-typePollingSub_Flow" doc:id="379d472d-cede-4475-982b-4b92c66f56c8" name="sf-typePollingSub_Flow"/>
+			</when>
+		</choice>
+		<module-eventlogger:logger doc:name="END:Logger" doc:id="e564c772-79a3-4d67-8e13-bba24adadeed" config-ref="EventLogger_Config1" message="START: Logging Event at sf-typePolling" apiFlowName="sf-typePolling" severity="WARN" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.sourceSystem]" targetChannel="#[vars.vAttributes.sourceChannel]" transactionDomain="#[vars.vAttributes.domain]" >
+			<module-eventlogger:event-data ><![CDATA[#[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+		<error-handler ref="errorhandlerError_Handler" />
+	</flow>
+	<sub-flow name="sf-typePollingSub_Flow" doc:id="0decc1e2-e492-405b-8658-a0ab46e1ee8d" >
+		<module-eventlogger:logger doc:name="START:Logger" doc:id="1f0a01d7-f85d-4302-90f3-b04f895cb091" config-ref="EventLogger_Config1" message="START: Logging Event at sf-typePollingSub_Flow" apiFlowName="sf-typePollingSub_Flow" severity="WARN" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.sourceSystem]" targetChannel="#[vars.vAttributes.sourceChannel]" transactionDomain="#[vars.vAttributes.domain]" >
+			<module-eventlogger:event-data ><![CDATA[#[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+		<file:write doc:name="Write" doc:id="7184e745-fd5a-439b-9680-12d275ed8685" config-ref="File_Config" path="#[vars.vAttributes.&quot;type&quot; ++ &quot;-&quot; ++ (now() as String {format:'dd-MM-yy'}) ++ '.json']"/>
+		<module-eventlogger:logger doc:name="END:Logger" doc:id="f8d5e5ca-ed01-4304-b4bb-421b636b5f27" config-ref="EventLogger_Config1" message="END: Logging Event at sf-typePollingSub_Flow" apiFlowName="sf-typePollingSub_Flow" severity="WARN" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.sourceSystem]" targetChannel="#[vars.vAttributes.sourceChannel]" transactionDomain="#[vars.vAttributes.domain]" >
+			<module-eventlogger:event-data ><![CDATA[#[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+	</sub-flow>
+</mule>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:module-eventlogger="http://www.mulesoft.org/schema/mule/module-eventlogger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/module-eventlogger http://www.mulesoft.org/schema/mule/module-eventlogger/current/mule-module-eventlogger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<sub-flow name="sf-shipSub" doc:id="3646bfeb-be88-41a4-8c8e-829e88bad9cc" >
+		<module-eventlogger:logger doc:name="START:Logger" doc:id="f67e398a-0efe-46d8-bd8e-a950ca6cacd0" config-ref="EventLogger_Config1" message="START: Logging Event at  sf-ship" apiFlowName="sf-ship" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.targetSystem]" targetChannel="#[vars.vAttributes.targetChannel]" transactionDomain="#[vars.vAttributes.targetChannel]" transactionType="#[vars.vAttributes.domain]" severity="TRACE">
+			<module-eventlogger:event-data ><![CDATA[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+		<file:write doc:id="09dc23fa-ea2e-4820-8afa-83e9a1613ab6" path="#[vars.vAttributes.&quot;type&quot; ++ &quot;-&quot; ++ (now() as String {format:'dd-MM-yy'}) ++ '.json']" config-ref="File_Config"/>
+		<module-eventlogger:logger doc:name="Debug:Logger" doc:id="a9f9af5e-fda7-421d-8eb7-c4ba2e54843f" config-ref="EventLogger_Config1" message="START: Logging Event at  sf-ship" apiFlowName="sf-ship" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.targetSystem]" targetChannel="#[vars.vAttributes.targetChannel]" transactionDomain="#[vars.vAttributes.targetChannel]" transactionType="#[vars.vAttributes.domain]" >
+			<module-eventlogger:event-data ><![CDATA[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+	</sub-flow>
+	<flow name="sf-ship" doc:id="2763e153-b72f-4d8b-9b5f-43b6a03024be" >
+		<module-eventlogger:logger doc:name="START:Logger" doc:id="9b6883de-8d78-4bd3-b53e-a363523530a4" config-ref="EventLogger_Config1" apiFlowName="sf-ship" sourceSystem="#[vars.vAttributes.sourceSystem]" sourceChannel="#[vars.vAttributes.sourceChannel]" targetSystem="#[vars.vAttributes.targetSystem]" targetChannel="#[vars.vAttributes.targetChannel]" transactionDomain="#[vars.vAttributes.domain]" transactionType="#[vars.vAttributes.domain]" message="start:logging">
+			<module-eventlogger:event-data><![CDATA[%dw 2.0
+output application/json
+---
+if (p('enablePayload')=="true")
+({
+	"payload": payload,
+	("payload-size": sizeOf(payload)) if (payload != null)
+})
+else
+({
+	 "payload": "Payload is disabled",
+	("payload-size": sizeOf(payload)) if (payload != null),
+})]]></module-eventlogger:event-data>
+		</module-eventlogger:logger>
+		<ee:transform doc:name="DW:Converting  JSON" doc:id="226eceac-81e6-4cfa-97cb-856d20a0841c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "DeliveryMethodId":"ShipToStore",
+    "DestinationActionId":"Merge",
+ (payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN map {
+"FulfillmentId": $.LPN.DistributionOrderID[0],
+"FulfillmentLine": payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN map
+{
+          // "AsnId":  $.ASNType++  "_" ++ $.LPN.TrackingNbr[0],
+"AsnId":  "0000000041" ++ "_" ++ $.LPN.TrackingNbr[0] ,
+"FulfillmentLineId":$.LPN.LPNDetail[0].DistributionOrderLineItemID[0],"FulfillmentLineStatusId":"5000.000",
+"ItemId":$.LPN.LPNDetail[0].ItemName[0],
+ "OrderId":"RH12072121",
+"OrderLineId":"1",
+"OrderedQty":$.LPN.LPNDetail[0].LPNDetailQuantity[0].Quantity ,
+"QuantityUom": $.LPN.LPNDetail[0].LPNDetailQuantity[0].QuantityUOM ,
+"ReleaseId" : $.LPN.DistributionOrderID[0],
+"ReleaseLineId":$.LPN.LPNDetail[0].DistributionOrderLineItemID[0],
+"ShippedQty":$.LPN.LPNDetail[0].LPNDetailQuantity[0].ShippedAsnQuantity as Number
+},
+
+ "IsVerified": false,
+ "MaxStatusId":"5000.000",
+ "MinStatusId":"5000.000",
+ "Packages": payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN map {
+     "CurrentLocationId": $.LPN.CurrentFacilityAliasID[0],
+     "DeliveryType": "Customer Pickup",
+     "FulfillmentId":$.LPN.DistributionOrderID[0],
+     "GrossWeight":{
+         "Qty":$.LPN.LPNDetail[0].LPNDetailQuantity[0].Quantity,
+         "UOM":$.TotalWeightUOM,
+     },
+ "PackageDetail":payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN map{
+     "FulfillmentId":$.LPN.DistributionOrderID[0],
+     "FulfillmentId":$.LPN.LPNDetail[0].DistributionOrderLineItemID[0],
+     "ItemId":$.LPN.LPNDetail[0].ItemName[0],
+     "PackageDetailId" :"1",
+    "Quantity":{
+        "Qty":$.LPN.LPNDetail[0].LPNDetailQuantity[0].Quantity,
+        "UOM":$.LPN.LPNDetail[0].LPNDetailQuantity[0].QuantityUOM,
+},},
+"PackageId" : "",
+"PackageStatus" : "3000.000",
+"PackageTypeId": "CUSTOM_PACKAGE",
+"ReceiptType": "ReceiveByPackage",
+"ShipFromLocationId" : $.OriginFacilityAliasID,
+
+"ShipToLocationId" : $.DestinationFacilityAliasID,
+
+"TrackingNumber": $.LPN.TrackingNbr[0],
+},}),
+"ShipFromLocationId" :payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN.OriginFacilityAliasID[0],
+
+"ShipToLocationId" : payload.ShipConfirmCanonical.EnterpriseBody.Message.ASN.DestinationFacilityAliasID[0],
+
+"Source" : ""
+
+
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="6c21648d-81ff-4078-9422-981c22fcd29e">
+			<when expression="#[payload.ShipConfirmCanonical != null]">
+				<ee:transform doc:name="Transform Message" doc:id="3eb0a60f-5b33-4739-bdec-7799ebac0355">
+					<ee:message>
+						<ee:set-payload><![CDATA[payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+		</choice>
+		<flow-ref doc:name="sf-shipSub" doc:id="9051b61c-7d84-4f2d-a34d-91530603af4e" name="sf-shipSub" />
+		<error-handler ref="errorhandlerError_Handler" />
+	</flow>
+</mule>
