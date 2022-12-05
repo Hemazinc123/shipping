@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:error-handler-plugin="http://www.mulesoft.org/schema/mule/error-handler-plugin" xmlns:module-eventlogger="http://www.mulesoft.org/schema/mule/module-eventlogger"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/module-eventlogger http://www.mulesoft.org/schema/mule/module-eventlogger/current/mule-module-eventlogger.xsd
+http://www.mulesoft.org/schema/mule/error-handler-plugin http://www.mulesoft.org/schema/mule/error-handler-plugin/current/mule-error-handler-plugin.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bf024fdc-39e2-42e8-b113-d16fcd14e548" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	    <apikit:config name="Router-config" api="api/torrid.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" >
+		<apikit:flow-mappings >
+			<apikit:flow-mapping resource="/TypedPolling" action="post" content-type="application/xml" flow-ref="mf-post-TypedPolling" />
+			<apikit:flow-mapping resource="/ShipToStore" action="post" content-type="application/json" flow-ref="mf-post-ShipToStore" />
+
+		</apikit:flow-mappings>
+	</apikit:config>
+	<module-eventlogger:config name="EventLogger_Config1" doc:name="EventLogger Config" doc:id="b5c49a22-fcb5-4549-870d-e3b2c236c66b" />
+	<configuration-properties doc:name="Configuration properties" doc:id="be1dc4fe-febb-4658-82c6-1082ec5280ac" file="properties\yaml\common.yaml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="8ef87d7a-3a4c-4546-9be2-f19df2e7774a" file="properties\yaml\dev.yaml" />
+	<global-property doc:name="Global Property" doc:id="45b39d42-f771-4381-81b9-cb6850ccd2a5" name="mule.env" value="dev" />
+	<global-property doc:name="Global Property" doc:id="185aed33-61f5-4c21-b852-cab457244f6b" name="secure.key" value="hemasripakkela@zinc12" />
+	
+		<file:config name="File_Config" doc:name="File Config" doc:id="0cd6a5da-f3bb-4125-b381-250fdb3fd55d" >
+		<file:connection workingDir="D:/cls" />
+	</file:config>
+	<configuration doc:name="Configuration" doc:id="77670c46-6375-4324-9dac-daf4d79b68be" defaultErrorHandler-ref="errorhandlerError_Handler" />
+	<error-handler-plugin:config name="Error_Handler_Plugin_Config" doc:name="Error Handler Plugin Config" doc:id="8576a101-89a5-4c3d-ace1-d2ac28f619bb" />
+	
+	
+	
+</mule>

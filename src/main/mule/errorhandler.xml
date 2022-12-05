@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:error-handler-plugin="http://www.mulesoft.org/schema/mule/error-handler-plugin"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/error-handler-plugin http://www.mulesoft.org/schema/mule/error-handler-plugin/current/mule-error-handler-plugin.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="errorhandlerError_Handler" doc:id="91dbc888-79b9-4829-bbd6-2352273b105a" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="86133fc8-7f5c-4e12-a3d8-3bb201674e51" type="ANY">
+			<error-handler-plugin:on-error doc:name="Process Error" doc:id="101df5cb-9076-4656-943a-c081e10ccf6f" config-ref="Error_Handler_Plugin_Config"/>
+			<ee:transform doc:name="Transform Message" doc:id="eb9b3488-b39a-4203-af10-db02fd3eaed2" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="9ec5c803-29f9-419b-9892-19e84099e7e5" >
+				<when expression='#[(["CONNECTIVITY","INTERNAL_SERVER_ERROR","NOT_FOUND","SERVICE_UNAVAILABLE","TIMEOUT","BAD_GATEWAY","GATEWAY_TIMEOUT","QUERY_EXECUTION"] contains((error.errorType.identifier default "") as String)) and (payload != null)]'>
+					<ee:transform doc:name="Transform Message" doc:id="18429c73-b24d-45b2-90d5-454f3584b930" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[payload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</when>
+			</choice>
+		</on-error-continue>
+	</error-handler>
+</mule>

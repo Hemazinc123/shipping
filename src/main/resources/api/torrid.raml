@@ -1,0 +1,46 @@
+#%RAML 1.0
+title: torrid
+version: v1
+description: 
+protocols: [HTTP,HTTPS]
+
+securedBy: [BasicAuth,OAuth]
+securitySchemes:
+  BasicAuth : !include securitySchemas/BasicsecurityScheme.raml
+  OAuth : !include securitySchemas/OauthsecurityScheme.raml
+
+baseUri: https://{baseurl}/api/torrid/v1/
+baseUriParameters:
+  baseurl:
+    description: 
+    enum:
+      - esb.dev-01.api.com
+traits:
+  ressponses code: !include traits/trait.raml
+types:
+  gg: !include datatypes/REQdataType.raml
+ 
+/TypedPolling:
+  post:
+    is: [ressponses code]
+    body:
+      application/xml:
+        example: !include Examples/Ship_Confirm_Request.xml
+/ShipToStore:
+    post:
+     is: [ressponses code]
+     body:
+      application/json:
+        example: !include Examples/Ship_Confirm_Request.xml
+
+
+              
+
+        
+ 
+          
+
+
+
+
+  

@@ -1,0 +1,14 @@
+#%RAML 1.0 SecurityScheme
+type: x-basic
+displayName: BasicAuth
+description: Basic Security Schema
+describedBy:
+  headers:
+    UserName: 
+      type : string
+    password:
+      type: string
+  responses:
+    400:
+      description: Autheniation is failed      
+

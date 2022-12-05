@@ -1,0 +1,22 @@
+http:
+  host: "0.0.0.0"
+  port: "8081"
+  listener:
+    path: "/*"
+    
+headers:
+    sourceSystem: "sftp"
+    sourceChannel: "AMQ"
+    targetSystem: "gcp"
+    targetChannel: "HTTPS"
+    domain : "product-information"    
+app:
+  name: ${project.artifactId}
+  version: ${project.version}
+  businessDomain: "InventoryManagement"
+  
+mule:
+  apicategory: "EXPERIENCE API"  
+ 
+    
+    

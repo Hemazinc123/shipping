@@ -1,0 +1,15 @@
+#%RAML 1.0 SecurityScheme
+type: OAuth 2.0
+description: OAuth Security Schema
+describedBy:
+  headers:
+    Authorization: 
+     description: use to send the vaild token 
+     type: string
+     required: true
+  responses:
+    401:
+      description: Expired Token
+    403:
+      description: Bad Oauth request
+    
